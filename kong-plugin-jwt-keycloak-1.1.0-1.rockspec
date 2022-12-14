@@ -6,7 +6,7 @@ version = "1.1.0-1"
 -- updated (incremented) when this file changes, but the source remains the same.
 
 local pluginName = package:match("^kong%-plugin%-(.+)$")  -- "jwt-keycloak"
-supported_platforms = {"linux", "macosx"}
+supported_platforms = {"linux", "macosx" ,"mingw", "windows"}
 
 source = {
   url = "git://github.com/gbbirkisson/kong-plugin-jwt-keycloak",

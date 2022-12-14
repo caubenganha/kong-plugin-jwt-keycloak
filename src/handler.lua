@@ -1,4 +1,4 @@
-local BasePlugin = require "kong.plugins.base_plugin"
+--local BasePlugin = require "kong.plugins.base_plugin"
 local constants = require "kong.constants"
 local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
 local socket = require "socket"
@@ -12,7 +12,7 @@ local validate_client_roles = require("kong.plugins.jwt-keycloak.validators.role
 
 local re_gmatch = ngx.re.gmatch
 
-local JwtKeycloakHandler = BasePlugin:extend()
+--local JwtKeycloakHandler = BasePlugin:extend()
 
 local priority_env_var = "JWT_KEYCLOAK_PRIORITY"
 local priority
@@ -23,8 +23,13 @@ else
 end
 kong.log.debug('JWT_KEYCLOAK_PRIORITY: ' .. priority)
 
-JwtKeycloakHandler.PRIORITY = priority
-JwtKeycloakHandler.VERSION = "1.1.0"
+--JwtKeycloakHandler.PRIORITY = priority
+--JwtKeycloakHandler.VERSION = "1.1.0"
+
+local JwtKeycloakHandler = {
+    VERSION  = "1.0.0",
+    PRIORITY = 10,
+}
 
 function table_to_string(tbl)
     local result = ""
@@ -92,9 +97,9 @@ local function retrieve_token(conf)
     end
 end
 
-function JwtKeycloakHandler:new()
-    JwtKeycloakHandler.super.new(self, "jwt-keycloak")
-end
+--function JwtKeycloakHandler:new()
+--    JwtKeycloakHandler.super.new(self, "jwt-keycloak")
+--end
 
 local function load_consumer(consumer_id, anonymous)
     local result, err = kong.db.consumers:select { id = consumer_id }
