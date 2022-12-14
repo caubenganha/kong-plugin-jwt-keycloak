@@ -1,4 +1,4 @@
---local BasePlugin = require "kong.plugins.base_plugin"
+
 local constants = require "kong.constants"
 local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
 local socket = require "socket"
@@ -12,7 +12,6 @@ local validate_client_roles = require("kong.plugins.jwt-keycloak.validators.role
 
 local re_gmatch = ngx.re.gmatch
 
---local JwtKeycloakHandler = BasePlugin:extend()
 
 local priority_env_var = "JWT_KEYCLOAK_PRIORITY"
 local priority
