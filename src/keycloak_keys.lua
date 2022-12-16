@@ -39,6 +39,21 @@ local function get_wellknown_endpoint(well_known_template, issuer)
     return string.format(well_known_template, issuer)
 end
 
+local function get_user_attr(user_attributes_template)
+    local req = url.parse(user_attributes_template)
+
+    local res, err = get_request(user_attributes_template, req.scheme, req.port)
+    if err then
+        return nil, err
+    end
+
+    local keys = {}
+    for i, key in ipairs(res['api-access']['apis']) do
+        keys[i] = key
+    end
+    return keys, nil
+end
+
 local function get_issuer_keys(well_known_endpoint)
     -- Get port of the request: This is done because keycloak 3.X.X does not play well with lua socket.http
     local req = url.parse(well_known_endpoint)
@@ -65,6 +80,7 @@ end
 
 return {
     get_request = get_request,
+    get_user_attr = get_user_attr,
     get_issuer_keys = get_issuer_keys,
     get_wellknown_endpoint = get_wellknown_endpoint,
 }

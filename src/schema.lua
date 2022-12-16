@@ -18,6 +18,7 @@ return {
           { allowed_iss = { type = "set", elements = { type = "string" }, required = true }, },
           { iss_key_grace_period = { type = "number", default = 10, between = { 1, 60 }, }, },
           { well_known_template = { type = "string", default = "%s/.well-known/openid-configuration" }, },
+          { user_attributes_template = { type = "string", default = "http://10.90.10.206:8080/admin/realms/wetrade/users?username=" }, },
           
           { scope = { type = "set", elements = { type = "string" }, default = nil }, },
           { roles = { type = "set", elements = { type = "string" }, default = nil }, },

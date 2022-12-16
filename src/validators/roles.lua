@@ -1,5 +1,5 @@
 local function validate_client_roles(allowed_client_roles, jwt_claims)
-    if allowed_client_roles == nil or table.getn(allowed_client_roles) == 0 then
+    if allowed_client_roles == nil or #allowed_client_roles == 0 then
         return true
     end
 
@@ -27,7 +27,7 @@ local function validate_client_roles(allowed_client_roles, jwt_claims)
 end
 
 local function validate_roles(allowed_roles, jwt_claims)
-    if allowed_roles == nil or table.getn(allowed_roles) == 0 then
+    if allowed_roles == nil or #allowed_roles == 0 then
         return true
     end
 
@@ -44,7 +44,7 @@ local function validate_roles(allowed_roles, jwt_claims)
 end
 
 local function validate_realm_roles(allowed_realm_roles, jwt_claims)
-    if allowed_realm_roles == nil or table.getn(allowed_realm_roles) == 0 then
+    if allowed_realm_roles == nil or #allowed_realm_roles == 0 then
         return true
     end
 
@@ -63,8 +63,25 @@ local function validate_realm_roles(allowed_realm_roles, jwt_claims)
     return nil, "Missing required realm role"
 end
 
+local function validate_api_access(allowed_apis_access, route)
+    kong.log.debug('allowed_apis_access: ' .. allowed_apis_access)
+    kong.log.debug('route name: ' .. route)
+    if allowed_apis_access == nil or #allowed_apis_access == 0 then
+        return true
+    end
+
+    for _, curr_allowed_api in pairs(allowed_apis_access) do
+        if route == curr_allowed_api then
+            return true
+        end
+    end
+
+    return nil, "Not permission to call this API" .. route
+end
+
 return {
     validate_client_roles = validate_client_roles,
     validate_realm_roles = validate_realm_roles,
-    validate_roles = validate_roles
+    validate_roles = validate_roles,
+    validate_api_access = validate_api_access
 }

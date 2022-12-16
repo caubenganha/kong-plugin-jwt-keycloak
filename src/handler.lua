@@ -9,6 +9,7 @@ local validate_scope = require("kong.plugins.jwt-keycloak.validators.scope").val
 local validate_roles = require("kong.plugins.jwt-keycloak.validators.roles").validate_roles
 local validate_realm_roles = require("kong.plugins.jwt-keycloak.validators.roles").validate_realm_roles
 local validate_client_roles = require("kong.plugins.jwt-keycloak.validators.roles").validate_client_roles
+local validate_api_access = require("kong.plugins.jwt-keycloak.validators.roles").validate_api_access
 
 local re_gmatch = ngx.re.gmatch
 
@@ -172,8 +173,8 @@ local function get_keys(well_known_endpoint)
     for i, key in ipairs(keys) do
         decoded_keys[i] = jwt_decoder:base64_decode(key)
     end
-    
-    kong.log.debug('Number of keys retrieved: ' .. table.getn(decoded_keys))
+
+    kong.log.debug('Number of keys retrieved: ' .. #decoded_keys)
     return {
         keys = decoded_keys,
         updated_at = socket.gettime(),
@@ -182,7 +183,7 @@ end
 
 local function validate_signature(conf, jwt, second_call)
     local issuer_cache_key = 'issuer_keys_' .. jwt.claims.iss
-    
+
     well_known_endpoint = keycloak_keys.get_wellknown_endpoint(conf.well_known_template, jwt.claims.iss)
     -- Retrieve public keys
     local public_keys, err = kong.cache:get(issuer_cache_key, nil, get_keys, well_known_endpoint, true)
@@ -317,6 +318,19 @@ local function do_authentication(conf)
         ok, err = validate_client_roles(conf.client_roles, jwt.claims)
     end
 
+    -- Verify api access
+    local route = kong.router.get_route()
+    kong.log.debug('kong route name' .. route)
+    ngx.log(ngx.NOTICE, "NOTICE ngx route name" .. route)
+    ngx.log(ngx.DEBUG, "DEBUG ngx route name" .. route)
+    if ok then
+        apis, err = keycloak_keys.get_user_attr(conf.user_attributes_template)
+        if not err then
+            kong.log.debug('validate_api_access: ')
+            validate_api_access(apis, route)
+        end
+    end
+
     if ok then
         kong.ctx.shared.jwt_keycloak_token = jwt
         return true
@@ -325,6 +339,12 @@ local function do_authentication(conf)
     return false, { status = 403, message = "Access token does not have the required scope/role: " .. err }
 end
 
+function JwtKeycloakHandler:certificate(conf)
+
+    -- your custom code here
+    kong.log.debug("saying hi from the 'certificate' handler")
+
+  end
 
 function JwtKeycloakHandler:access(conf)
 
