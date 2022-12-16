@@ -3,7 +3,7 @@ import time
 import unittest
 import uuid
 
-from tests.config import *
+from config import *
 
 OK = 200
 CREATED = 201

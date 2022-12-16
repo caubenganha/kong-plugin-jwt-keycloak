@@ -1,10 +1,10 @@
-from tests.utils import *
+from utils import *
 
 
 class TestRoles(unittest.TestCase):
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master']
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade']
     })
     @authenticate()
     @call_api()
@@ -13,7 +13,7 @@ class TestRoles(unittest.TestCase):
 
     @skip("Need to update tests")
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'roles': ['test_role']
     })
     @authenticate()
@@ -24,7 +24,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual(OK, status)
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'roles': ['not_found']
     })
     @authenticate()
@@ -35,7 +35,7 @@ class TestRoles(unittest.TestCase):
 
     @skip("Need to update tests")
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'roles': ['test_role', 'not_found']
     })
     @authenticate()
@@ -46,7 +46,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual(OK, status)
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'realm_roles': ['uma_authorization']
     })
     @authenticate()
@@ -55,7 +55,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual(OK, status)
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'realm_roles': ['not_found']
     })
     @authenticate()
@@ -65,7 +65,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual('Access token does not have the required scope/role: Missing required realm role', body.get('message'))
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'realm_roles': ['uma_authorization', 'not_found']
     })
     @authenticate()
@@ -74,7 +74,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual(OK, status)
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'client_roles': ['account:manage-account']
     })
     @authenticate()
@@ -83,7 +83,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual(OK, status)
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'client_roles': ['account:manage-something-else']
     })
     @authenticate()
@@ -93,7 +93,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual('Access token does not have the required scope/role: Missing required role', body.get('message'))
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'client_roles': ['account:manage-account', 'account:manage-something-else']
     })
     @authenticate()
@@ -102,7 +102,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual(OK, status)
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'client_roles': ['user:do-user-stuff']
     })
     @authenticate()
@@ -112,7 +112,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual('Access token does not have the required scope/role: Missing required role', body.get('message'))
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'scope': ['email']
     })
     @authenticate()
@@ -123,7 +123,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual(OK, status)
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'scope': ['email', 'not_found']
     })
     @authenticate()
@@ -134,7 +134,7 @@ class TestRoles(unittest.TestCase):
         self.assertEqual(OK, status)
 
     @create_api({
-        'allowed_iss': ['http://localhost:8080/auth/realms/master'],
+        'allowed_iss': ['http://10.90.10.206:8080/auth/realms/wetrade'],
         'scope': ['not_found']
     })
     @authenticate()
