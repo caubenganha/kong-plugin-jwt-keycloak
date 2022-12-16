@@ -324,7 +324,7 @@ local function do_authentication(conf)
     ngx.log(ngx.NOTICE, "NOTICE ngx route name" .. route)
     ngx.log(ngx.DEBUG, "DEBUG ngx route name" .. route)
     if ok then
-        apis, err = keycloak_keys.get_user_attr(conf.user_attributes_template)
+        apis, err = keycloak_keys.get_user_attr(conf.user_attributes_template .. jwt.claims.preferred_username)
         if not err then
             kong.log.debug('validate_api_access: ')
             validate_api_access(apis, route)
