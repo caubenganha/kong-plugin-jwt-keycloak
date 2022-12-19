@@ -17,9 +17,9 @@ local function get_request(url, scheme, port, token)
     local err
 
     local chunks = {}
-    kong.log.debug('Bearer token: ' .. token)
     if token
     then
+        kong.log.debug('Bearer token: ' .. token)
         res, status = req{
             url = url,
             port = port,
