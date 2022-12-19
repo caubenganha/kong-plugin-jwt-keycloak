@@ -249,6 +249,7 @@ local function do_authentication(conf)
         return kong.response.exit(500, { message = "An unexpected error occurred" })
     end
 
+    kong.log.debug('Bear do_authen token: ' .. token)
     local token_type = type(token)
     if token_type ~= "string" then
         if token_type == "nil" then
@@ -323,8 +324,10 @@ local function do_authentication(conf)
     kong.log.debug('kong route name' .. route)
     ngx.log(ngx.NOTICE, "NOTICE ngx route name" .. route)
     ngx.log(ngx.DEBUG, "DEBUG ngx route name" .. route)
+    kong.log.debug('Bear token Verify api access: ' .. token)
     if ok then
-        apis, err = keycloak_keys.get_user_attr(conf.user_attributes_template .. jwt.claims.preferred_username)
+        kong.log.debug('Bear token Verify api access check ok: ' .. token)
+        local apis, err = keycloak_keys.get_user_attr(conf.user_attributes_template .. jwt.claims.preferred_username, token)
         if not err then
             kong.log.debug('validate_api_access: ')
             ok, err = validate_api_access(apis, route)
