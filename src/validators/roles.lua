@@ -64,7 +64,6 @@ local function validate_realm_roles(allowed_realm_roles, jwt_claims)
 end
 
 local function validate_api_access(allowed_apis_access, route)
-    kong.log.debug('allowed_apis_access: ' .. allowed_apis_access)
     kong.log.debug('route name: ' .. route)
     if allowed_apis_access == nil or #allowed_apis_access == 0 then
         return true

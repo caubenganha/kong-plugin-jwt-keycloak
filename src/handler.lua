@@ -327,7 +327,10 @@ local function do_authentication(conf)
         apis, err = keycloak_keys.get_user_attr(conf.user_attributes_template .. jwt.claims.preferred_username)
         if not err then
             kong.log.debug('validate_api_access: ')
-            validate_api_access(apis, route)
+            ok, err = validate_api_access(apis, route)
+            if err then
+                return false, { status = 403, message = err }
+            end
         end
     end
 
