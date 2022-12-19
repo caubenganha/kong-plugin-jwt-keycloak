@@ -1,3 +1,5 @@
+local keycloak_keys = require("kong.plugins.jwt-keycloak.keycloak_keys")
+
 local function validate_client_roles(allowed_client_roles, jwt_claims)
     if allowed_client_roles == nil or #allowed_client_roles == 0 then
         return true
@@ -63,10 +65,15 @@ local function validate_realm_roles(allowed_realm_roles, jwt_claims)
     return nil, "Missing required realm role"
 end
 
-local function validate_api_access(allowed_apis_access, route)
-    kong.log.debug('route name: ' .. route)
+local function validate_api_access(user_attributes_template, token, route)
+
+    local allowed_apis_access, err = keycloak_keys.get_user_attr(user_attributes_template, token)
+    if err then
+        return nil, err
+    end
+
     if allowed_apis_access == nil or #allowed_apis_access == 0 then
-        return true
+        return nil, "Permission is not set in user attributes"
     end
 
     for _, curr_allowed_api in pairs(allowed_apis_access) do
