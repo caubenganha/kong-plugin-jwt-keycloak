@@ -4,7 +4,7 @@ local https = require "ssl.https"
 local cjson_safe = require "cjson.safe"
 local convert = require "kong.plugins.jwt-keycloak.key_conversion"
 
-local function get_request(url, scheme, port)
+local function get_request(url, scheme, port, token)
     local req
     if scheme == "https" then
         req = https.request
@@ -17,12 +17,23 @@ local function get_request(url, scheme, port)
     local err
 
     local chunks = {}
-    res, status = req{
-        url = url,
-        port = port,
-        sink = ltn12.sink.table(chunks)
-    }
-    
+    kong.log.debug('Bearer token: ' .. token)
+    if token
+    then
+        res, status = req{
+            url = url,
+            port = port,
+            headers = { authentication = "Bearer " .. token},
+            sink = ltn12.sink.table(chunks)
+        }
+    else
+        res, status = req{
+            url = url,
+            port = port,
+            sink = ltn12.sink.table(chunks)
+        }
+    end
+
     if status ~= 200 then
         return nil, 'Failed calling url ' .. url .. ' response status ' .. status
     end
@@ -39,11 +50,11 @@ local function get_wellknown_endpoint(well_known_template, issuer)
     return string.format(well_known_template, issuer)
 end
 
-local function get_user_attr(user_attributes_template)
+local function get_user_attr(user_attributes_template, token)
     local req = url.parse(user_attributes_template)
     kong.log.debug('user_attributes_template: ' .. user_attributes_template)
     kong.log.debug('schema - port: ' ..req.scheme.. req.port)
-    local res, err = get_request(user_attributes_template, req.scheme, req.port)
+    local res, err = get_request(user_attributes_template, req.scheme, req.port, token)
     kong.log.debug('err: ' ..err)
     if err then
         return nil, err
