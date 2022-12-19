@@ -319,7 +319,7 @@ local function do_authentication(conf)
     end
 
     -- Verify api access
-    local route = kong.router.get_route()
+    local route = kong.router.get_route().name
     kong.log.debug('kong route name' .. route)
     ngx.log(ngx.NOTICE, "NOTICE ngx route name" .. route)
     ngx.log(ngx.DEBUG, "DEBUG ngx route name" .. route)
