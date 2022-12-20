@@ -61,15 +61,18 @@ local function get_request_token(url, scheme, port, token)
     if status ~= 200 then
         return nil, 'Failed calling url ' .. url .. ' response status ' .. status
     end
+    print("API access in string: ", tostring(table.concat(chunks)))
     local res_data, err = json.decode(table.concat(chunks))
     if not res_data then
         kong.log.err(err)
         return nil, err
     end
     local json_data = res_data[1] or {}
-    local response = tostring(json_data["attributes"]["api-access"][1])
-    print("API access: ", tostring(json_data["attributes"]["api-access"]))
-    return response, nil
+    local response = json_data["attributes"]["api-access"]
+    -- print("firstName access: ", tostring(json_data["firstName"]))
+    -- print("lastName access: ", tostring(json_data["lastName"]))
+    -- print("email access: ", tostring(json_data["email"]))
+    return json.decode(table.concat(response)), nil
 end
 
 local function get_wellknown_endpoint(well_known_template, issuer)
@@ -84,9 +87,9 @@ local function get_user_attr(user_attributes_template, token)
         return nil, err
     end
     local keys = {}
-    for i, key in ipairs(res) do
-        kong.log.debug('api-access declares in keycloak: ' .. key)
-        keys[i] = key
+    for i, value in ipairs(res) do
+        kong.log.debug('api-access declares in keycloak: ' .. value)
+        keys[i] = value
     end
     return keys, nil
 end
