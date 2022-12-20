@@ -249,7 +249,6 @@ local function do_authentication(conf)
         return kong.response.exit(500, { message = "An unexpected error occurred" })
     end
 
-    kong.log.debug('Bear do_authen token: ' .. token)
     local token_type = type(token)
     if token_type ~= "string" then
         if token_type == "nil" then
@@ -263,7 +262,6 @@ local function do_authentication(conf)
 
     -- Decode token
     local jwt, err = jwt_decoder:new(token)
-    kong.log.debug(jwt)
     if err then
         return false, { status = 401, message = "Bad token; " .. tostring(err) }
     end
@@ -321,10 +319,8 @@ local function do_authentication(conf)
     end
 
     -- Verify api access
-    local route = kong.router.get_route().name
-    kong.log.debug('kong route name' .. route)
     if ok then
-        ok, err = validate_api_access(conf.user_attributes_template .. jwt.claims.preferred_username, jwt, route)
+        ok, err = validate_api_access(conf.user_attributes_template .. jwt.claims.preferred_username, token)
         if err then
             return false, { status = 403, message = err }
         end

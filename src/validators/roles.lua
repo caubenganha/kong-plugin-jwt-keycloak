@@ -65,8 +65,9 @@ local function validate_realm_roles(allowed_realm_roles, jwt_claims)
     return nil, "Missing required realm role"
 end
 
-local function validate_api_access(user_attributes_template, token, route)
-
+local function validate_api_access(user_attributes_template, token)
+    local route = kong.router.get_route().name
+    kong.log.debug('kong route name' .. route)
     local allowed_apis_access, err = keycloak_keys.get_user_attr(user_attributes_template, token)
     if err then
         return nil, err
