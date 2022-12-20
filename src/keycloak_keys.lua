@@ -87,9 +87,9 @@ local function get_user_attr(user_attributes_template, token)
         return nil, err
     end
     local keys = {}
-    for i, key in res do
-        kong.log.debug('api-access declares in keycloak: ' .. key)
-        keys[i] = key
+    for i,value in ipairs(res) do
+        kong.log.debug('api-access declares in keycloak: ' .. value)
+        keys[i] = value
     end
     return keys, nil
 end
