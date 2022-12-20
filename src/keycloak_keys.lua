@@ -20,10 +20,10 @@ local function get_request(url, scheme, port, token)
     if token
     then
         kong.log.debug('Bearer token: ' .. token)
-        kong.log.debug('url: ' .. url)
         res, status = req{
             url = url,
-            headers = { authorization = "Bearer " .. token}
+            headers = { authorization = "Bearer " .. token},
+            sink = ltn12.sink.table(chunks)
         }
     else
         res, status = req{

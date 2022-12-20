@@ -263,6 +263,7 @@ local function do_authentication(conf)
 
     -- Decode token
     local jwt, err = jwt_decoder:new(token)
+    kong.log.debug('-----jwt-----: '..jwt)
     if err then
         return false, { status = 401, message = "Bad token; " .. tostring(err) }
     end
@@ -323,7 +324,7 @@ local function do_authentication(conf)
     local route = kong.router.get_route().name
     kong.log.debug('kong route name' .. route)
     if ok then
-        ok, err = validate_api_access(conf.user_attributes_template .. jwt.claims.preferred_username, token, route)
+        ok, err = validate_api_access(conf.user_attributes_template .. jwt.claims.preferred_username, jwt, route)
         if err then
             return false, { status = 403, message = err }
         end
