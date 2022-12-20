@@ -2,9 +2,10 @@ local url = require "socket.url"
 local http = require "socket.http"
 local https = require "ssl.https"
 local cjson_safe = require "cjson.safe"
+local json = require "json"
 local convert = require "kong.plugins.jwt-keycloak.key_conversion"
 
-local function get_request(url, scheme, port, token)
+local function get_request(url, scheme, port)
     local req
     if scheme == "https" then
         req = https.request
@@ -17,34 +18,58 @@ local function get_request(url, scheme, port, token)
     local err
 
     local chunks = {}
-    if token
-    then
-        kong.log.debug('Bearer token: ' .. token)
-        res, status = req{
-            url = url,
-            headers = {
-                ["Authorization"] =  "Bearer " .. token
-            },
-            sink = ltn12.sink.table(chunks)
-        }
+    res, status = req({
+        url = url,
+        port = port,
+        sink = ltn12.sink.table(chunks)
+    })
+
+    if status ~= 200 then
+        return nil, 'Failed calling url ' .. url .. ' response status ' .. status
+    end
+    res, err = cjson_safe.decode(table.concat(chunks))
+    if not res then
+        return nil, 'Failed to parse json response'
+    end
+    return res, nil
+end
+
+local function get_request_token(url, scheme, port, token)
+    local req
+    if scheme == "https" then
+        req = https.request
     else
-        res, status = req{
+        req = http.request
+    end
+
+    local res
+    local status
+    local err
+
+    local chunks = {}
+    if token then
+        res, status = req({
             url = url,
-            port = port,
-            sink = ltn12.sink.table(chunks)
-        }
+            sink = ltn12.sink.table(chunks),
+            headers = { 
+                authorization = "Bearer " .. token,
+                host = "10.90.10.206:8080"
+            }
+        })
     end
 
     if status ~= 200 then
         return nil, 'Failed calling url ' .. url .. ' response status ' .. status
     end
-
-    res, err = cjson_safe.decode(table.concat(chunks))
-    if not res then
-        return nil, 'Failed to parse json response'
+    local res_data, err = json.decode(table.concat(chunks))
+    if not res_data then
+        kong.log.err(err)
+        return nil, err
     end
-    
-    return res, nil
+    local json_data = res_data[1] or {}
+    local response = tostring(json_data["attributes"]["api-access"][1])
+    print("API access: ", tostring(json_data["attributes"]["api-access"]))
+    return response, nil
 end
 
 local function get_wellknown_endpoint(well_known_template, issuer)
@@ -53,13 +78,13 @@ end
 
 local function get_user_attr(user_attributes_template, token)
     local req = url.parse(user_attributes_template)
-    local res, err = get_request(user_attributes_template, req.scheme, req.port, token)
+    local res, err = get_request_token(user_attributes_template, req.scheme, req.port, token)
     if err then
         kong.log.err('err: ' ..err)
         return nil, err
     end
     local keys = {}
-    for i, key in ipairs(res['api-access']['apis']) do
+    for i, key in ipairs(res) do
         kong.log.debug('api-access declares in keycloak: ' .. key)
         keys[i] = key
     end
