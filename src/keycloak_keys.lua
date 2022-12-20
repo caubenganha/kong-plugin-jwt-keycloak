@@ -61,14 +61,17 @@ local function get_request_token(url, scheme, port, token)
     if status ~= 200 then
         return nil, 'Failed calling url ' .. url .. ' response status ' .. status
     end
+    print("API access in string: ", tostring(table.concat(chunks)))
     local res_data, err = json.decode(table.concat(chunks))
     if not res_data then
         kong.log.err(err)
         return nil, err
     end
     local json_data = res_data[1] or {}
-    local response = tostring(json_data["attributes"]["api-access"][1])
-    print("API access: ", tostring(json_data["attributes"]["api-access"]))
+    local response = tostring(json_data["attributes"]["api-access"])
+    print("firstName access: ", tostring(json_data["firstName"]))
+    print("lastName access: ", tostring(json_data["lastName"]))
+    print("email access: ", tostring(json_data["email"]))
     return response, nil
 end
 
