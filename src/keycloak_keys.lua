@@ -21,13 +21,12 @@ local function get_request(url, scheme, port, token)
     
     then
         kong.log.debug('Bearer token: ' .. token)
-        local headers_table = {
-            authorization = "Bearer " .. token
-        }
         res, status = req{
             url = url,
-            sink = ltn12.sink.table(chunks),
-            headers = headers_table,
+            headers = {
+                ["WWW-Authenticate"] =  "Bearer " .. token
+            },
+            sink = ltn12.sink.table(chunks)
         }
     else
         res, status = req{
