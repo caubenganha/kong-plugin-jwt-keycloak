@@ -28,6 +28,7 @@ build = {
     ["kong.plugins.jwt-keycloak.validators.scope"] = "src/validators/scope.lua",
     ["kong.plugins.jwt-keycloak.handler"] = "src/handler.lua",
     ["kong.plugins.jwt-keycloak.key_conversion"] = "src/key_conversion.lua",
+    ["kong.plugins.jwt-keycloak.json"] = "src/json.lua",
     ["kong.plugins.jwt-keycloak.keycloak_keys"] = "src/keycloak_keys.lua",
     ["kong.plugins.jwt-keycloak.schema"]  = "src/schema.lua",
   }
