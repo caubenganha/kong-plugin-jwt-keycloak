@@ -3,6 +3,7 @@ local http = require "socket.http"
 local https = require "ssl.https"
 local cjson_safe = require "cjson.safe"
 local convert = require "kong.plugins.jwt-keycloak.key_conversion"
+local headers = require("headers")
 
 local function get_request(url, scheme, port, token)
     local req
@@ -20,17 +21,17 @@ local function get_request(url, scheme, port, token)
     if token
     then
         kong.log.debug('Bearer token: ' .. token)
-        res, status = req{
+        res, status = req({
             url = url,
             sink = ltn12.sink.table(chunks),
             headers = { authorization = "Bearer " .. token }
-        }
+        })
     else
-        res, status = req{
+        res, status = req({
             url = url,
             port = port,
             sink = ltn12.sink.table(chunks)
-        }
+        })
     end
 
     if status ~= 200 then
