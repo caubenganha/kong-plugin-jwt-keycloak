@@ -38,8 +38,9 @@ local function get_request(url, scheme, port, token)
     if status ~= 200 then
         return nil, 'Failed calling url ' .. url .. ' response status ' .. status
     end
-
+    kong.log.debug(chunks)
     res, err = cjson_safe.decode(table.concat(chunks))
+    kong.log.debug(res)
     if not res then
         return nil, 'Failed to parse json response'
     end
