@@ -263,7 +263,7 @@ local function do_authentication(conf)
 
     -- Decode token
     local jwt, err = jwt_decoder:new(token)
-    kong.log.debug('-----jwt-----: '..jwt)
+    kong.log.debug(jwt)
     if err then
         return false, { status = 401, message = "Bad token; " .. tostring(err) }
     end
