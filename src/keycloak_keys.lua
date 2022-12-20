@@ -23,7 +23,7 @@ local function get_request(url, scheme, port, token)
         res, status = req{
             url = url,
             port = port,
-            headers = { authentication = "Bearer " .. token},
+            headers = { authorization = "Bearer " .. token},
             sink = ltn12.sink.table(chunks)
         }
     else
@@ -52,14 +52,11 @@ end
 
 local function get_user_attr(user_attributes_template, token)
     local req = url.parse(user_attributes_template)
-    kong.log.debug('user_attributes_template: ' .. user_attributes_template)
-    kong.log.debug('schema - port: ' ..req.scheme.. req.port)
     local res, err = get_request(user_attributes_template, req.scheme, req.port, token)
-    kong.log.debug('err: ' ..err)
     if err then
+        kong.log.err('err: ' ..err)
         return nil, err
     end
-    kong.log.debug('have no err: ')
     local keys = {}
     for i, key in ipairs(res['api-access']['apis']) do
         kong.log.debug('api-access declares in keycloak: ' .. key)

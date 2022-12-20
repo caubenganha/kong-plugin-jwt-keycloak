@@ -322,18 +322,10 @@ local function do_authentication(conf)
     -- Verify api access
     local route = kong.router.get_route().name
     kong.log.debug('kong route name' .. route)
-    ngx.log(ngx.NOTICE, "NOTICE ngx route name" .. route)
-    ngx.log(ngx.DEBUG, "DEBUG ngx route name" .. route)
-    kong.log.debug('Bear token Verify api access: ' .. token)
     if ok then
-        kong.log.debug('Bear token Verify api access check ok: ' .. token)
-        local apis, err = keycloak_keys.get_user_attr(conf.user_attributes_template .. jwt.claims.preferred_username, token)
-        if not err then
-            kong.log.debug('validate_api_access: ')
-            ok, err = validate_api_access(apis, route)
-            if err then
-                return false, { status = 403, message = err }
-            end
+        ok, err = validate_api_access(conf.user_attributes_template .. jwt.claims.preferred_username, token, route)
+        if err then
+            return false, { status = 403, message = err }
         end
     end
 
