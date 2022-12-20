@@ -22,7 +22,9 @@ local function get_request(url, scheme, port, token)
         kong.log.debug('Bearer token: ' .. token)
         res, status = req{
             url = url,
-            headers = { authorization = "Bearer " .. token},
+            headers = {
+                ["Authorization"] =  "Bearer " .. token
+            },
             sink = ltn12.sink.table(chunks)
         }
     else
