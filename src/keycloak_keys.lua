@@ -23,7 +23,7 @@ local function get_request(url, scheme, port, token)
         res, status = req{
             url = url,
             headers = {
-                ["Authorization"] =  "Bearer " .. token
+                ["authorization"] =  "Bearer " .. token
             },
             sink = ltn12.sink.table(chunks)
         }
