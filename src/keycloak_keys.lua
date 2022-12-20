@@ -69,14 +69,10 @@ local function get_request_token(url, scheme, port, token)
     end
     local json_data = res_data[1] or {}
     local response = json_data["attributes"]["api-access"]
-    local apis, err = json.decode(response)
-    if err then
-        return nil, err
-    end
     -- print("firstName access: ", tostring(json_data["firstName"]))
     -- print("lastName access: ", tostring(json_data["lastName"]))
     -- print("email access: ", tostring(json_data["email"]))
-    return apis, nil
+    return response, nil
 end
 
 local function get_wellknown_endpoint(well_known_template, issuer)
@@ -91,7 +87,7 @@ local function get_user_attr(user_attributes_template, token)
         return nil, err
     end
     local keys = {}
-    for i, key in ipairs(res) do
+    for i, key in res do
         kong.log.debug('api-access declares in keycloak: ' .. key)
         keys[i] = key
     end
