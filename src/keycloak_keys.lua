@@ -2,7 +2,7 @@ local url = require "socket.url"
 local http = require "socket.http"
 local https = require "ssl.https"
 local cjson_safe = require "cjson.safe"
-local json = require "json"
+local json = require "kong.plugins.jwt-keycloak.json"
 local convert = require "kong.plugins.jwt-keycloak.key_conversion"
 
 local function get_request(url, scheme, port)
