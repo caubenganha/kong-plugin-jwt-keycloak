@@ -69,10 +69,14 @@ local function get_request_token(url, scheme, port, token)
     end
     local json_data = res_data[1] or {}
     local response = json_data["attributes"]["api-access"]
-    print("firstName access: ", tostring(json_data["firstName"]))
-    print("lastName access: ", tostring(json_data["lastName"]))
-    print("email access: ", tostring(json_data["email"]))
-    return response, nil
+    local apis, err = json.decode(response)
+    if err then
+        return nil, err
+    end
+    -- print("firstName access: ", tostring(json_data["firstName"]))
+    -- print("lastName access: ", tostring(json_data["lastName"]))
+    -- print("email access: ", tostring(json_data["email"]))
+    return apis, nil
 end
 
 local function get_wellknown_endpoint(well_known_template, issuer)
