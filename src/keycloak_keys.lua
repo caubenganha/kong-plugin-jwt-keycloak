@@ -68,7 +68,7 @@ local function get_request_token(url, scheme, port, token)
         return nil, err
     end
     local json_data = res_data[1] or {}
-    local response = json_data["attributes"]["api-access"]["apis"]
+    local response = json_data["attributes"]["api-access"]
     -- print("firstName access: ", tostring(json_data["firstName"]))
     -- print("lastName access: ", tostring(json_data["lastName"]))
     -- print("email access: ", tostring(json_data["email"]))
