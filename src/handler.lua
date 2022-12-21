@@ -1,4 +1,3 @@
-
 local constants = require "kong.constants"
 local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
 local socket = require "socket"
@@ -36,22 +35,22 @@ function table_to_string(tbl)
     for k, v in pairs(tbl) do
         -- Check the key type (ignore any numerical keys - assume its an array)
         if type(k) == "string" then
-            result = result.."[\""..k.."\"]".."="
+            result = result .. "[\"" .. k .. "\"]" .. "="
         end
 
         -- Check the value type
         if type(v) == "table" then
-            result = result..table_to_string(v)
+            result = result .. table_to_string(v)
         elseif type(v) == "boolean" then
-            result = result..tostring(v)
+            result = result .. tostring(v)
         else
-            result = result.."\""..v.."\""
+            result = result .. "\"" .. v .. "\""
         end
-        result = result..","
+        result = result .. ","
     end
     -- Remove leading commas from the result
     if result ~= "" then
-        result = result:sub(1, result:len()-1)
+        result = result:sub(1, result:len() - 1)
     end
     return result
 end
@@ -146,7 +145,7 @@ local function set_consumer(consumer, credential, token)
 
     if credential then
         kong.ctx.shared.authenticated_jwt_token = token -- TODO: wrap in a PDK function?
-        ngx.ctx.authenticated_jwt_token = token  -- backward compatibilty only
+        ngx.ctx.authenticated_jwt_token = token -- backward compatibilty only
 
         if credential.username then
             set_header(constants.HEADERS.CREDENTIAL_IDENTIFIER, credential.username)
@@ -268,7 +267,7 @@ local function do_authentication(conf)
 
     -- Verify algorithim
     if jwt.header.alg ~= (conf.algorithm or "HS256") then
-        return false, {status = 403, message = "Invalid algorithm"}
+        return false, { status = 403, message = "Invalid algorithm" }
     end
 
     -- Verify the JWT registered claims
@@ -334,12 +333,27 @@ local function do_authentication(conf)
     return false, { status = 403, message = "Access token does not have the required scope/role: " .. err }
 end
 
+-- do initialization here, any module level code runs in the 'init_by_lua_block',
+-- before worker processes are forked. So anything you add here will run once,
+-- but be available in all workers.
+
+
+
+-- handles more initialization, but AFTER the worker process has been forked/created.
+-- It runs in the 'init_worker_by_lua_block'
+function plugin:init_worker()
+
+    -- your custom code here
+    kong.log.debug("saying hi from the 'init_worker' handler")
+
+end
+
 function JwtKeycloakHandler:certificate(conf)
 
     -- your custom code here
     kong.log.debug("saying hi from the 'certificate' handler")
 
-  end
+end
 
 function JwtKeycloakHandler:access(conf)
 
@@ -360,8 +374,8 @@ function JwtKeycloakHandler:access(conf)
             -- get anonymous user
             local consumer_cache_key = kong.db.consumers:cache_key(conf.anonymous)
             local consumer, err      = kong.cache:get(consumer_cache_key, nil,
-                                                    load_consumer,
-                                                    conf.anonymous, true)
+                load_consumer,
+                conf.anonymous, true)
             if err then
                 kong.log.err(err)
                 return kong.response.exit(500, { message = "An unexpected error occurred" })
@@ -372,6 +386,31 @@ function JwtKeycloakHandler:access(conf)
             return kong.response.exit(err.status, err.errors or { message = err.message })
         end
     end
+end
+
+-- runs in the 'header_filter_by_lua_block'
+function JwtKeycloakHandler:header_filter(plugin_conf)
+
+    -- your custom code here, for example;
+    kong.response.set_header(plugin_conf.response_header, "this is on the response")
+
+end
+
+-- runs in the 'body_filter_by_lua_block'
+-- function JwtKeycloakHandler:body_filter(plugin_conf)
+
+--     -- your custom code here
+--     kong.log.debug("saying hi from the 'body_filter' handler")
+
+-- end
+
+-- runs in the 'log_by_lua_block'
+-- Executed when the last response byte has been sent to the client.
+function JwtKeycloakHandler:log(plugin_conf)
+
+    -- your custom code here
+    kong.log.debug("saying hi from the 'log' handler")
+
 end
 
 return JwtKeycloakHandler
