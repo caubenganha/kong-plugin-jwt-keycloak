@@ -72,7 +72,7 @@ local function get_request_token(url, scheme, port, token)
     -- print("firstName access: ", tostring(json_data["firstName"]))
     -- print("lastName access: ", tostring(json_data["lastName"]))
     -- print("email access: ", tostring(json_data["email"]))
-    return json.decode(response), nil
+    return json.decode(table.concat(response)), nil
 end
 
 local function get_wellknown_endpoint(well_known_template, issuer)
