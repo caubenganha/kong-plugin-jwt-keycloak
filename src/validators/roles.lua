@@ -133,7 +133,7 @@ local function validate_group_access(group_attributes_template, groups_in_token,
 end
 
 function get_data(attributes_template, token)
-    local data, err = keycloak_keys.get_group_attr(attributes_template, token)
+    local data, err = keycloak_keys.get_role_attr(attributes_template, token)
     if err then
         return nil, err
     end
