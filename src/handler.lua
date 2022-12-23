@@ -8,7 +8,8 @@ local validate_scope = require("kong.plugins.jwt-keycloak.validators.scope").val
 local validate_roles = require("kong.plugins.jwt-keycloak.validators.roles").validate_roles
 local validate_realm_roles = require("kong.plugins.jwt-keycloak.validators.roles").validate_realm_roles
 local validate_client_roles = require("kong.plugins.jwt-keycloak.validators.roles").validate_client_roles
-local validate_api_access = require("kong.plugins.jwt-keycloak.validators.roles").validate_api_access
+local validate_role_access = require("kong.plugins.jwt-keycloak.validators.roles").validate_role_access
+local validate_group_access = require("kong.plugins.jwt-keycloak.validators.roles").validate_group_access
 
 local re_gmatch = ngx.re.gmatch
 
@@ -319,9 +320,12 @@ local function do_authentication(conf)
 
     -- Verify api access
     if ok then
-        ok, err = validate_api_access(conf.user_attributes_template .. jwt.claims.preferred_username, token)
+        ok, err = validate_role_access(conf.role_attributes_template, jwt.claims.realm_access.roles, token)
         if err then
-            return false, { status = 403, message = err }
+            ok, err = validate_group_access(conf.group_attributes_template, jwt.claims.group_api_access, token)
+            if err then
+                return false, { status = 403, message = err }
+            end
         end
     end
 
@@ -341,7 +345,7 @@ end
 
 -- handles more initialization, but AFTER the worker process has been forked/created.
 -- It runs in the 'init_worker_by_lua_block'
-function plugin:init_worker()
+function JwtKeycloakHandler:init_worker()
 
     -- your custom code here
     kong.log.debug("saying hi from the 'init_worker' handler")

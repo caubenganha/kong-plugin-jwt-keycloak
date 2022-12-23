@@ -65,20 +65,33 @@ local function validate_realm_roles(allowed_realm_roles, jwt_claims)
     return nil, "Missing required realm role"
 end
 
-local function validate_api_access(user_attributes_template, token)
+local function validate_role_access(role_attributes_template, roles_in_token, token)
     local route = kong.router.get_route().name
     kong.log.debug('kong route name' .. route)
-    local allowed_apis_access, err = keycloak_keys.get_user_attr(user_attributes_template, token)
+    kong.log.debug('kong roles items ' .. roles_in_token)
+
+    roles_cofiguration, err = get_data(role_attributes_template, token)
     if err then
         return nil, err
     end
 
-    if allowed_apis_access == nil or #allowed_apis_access == 0 then
-        return nil, "Permission is not set in user attributes"
+    -- Get user role (detail) from list role
+    local user_role = {}
+    for _, curr_role in pairs(roles_in_token) do
+        kong.log.debug('curr_allowed_api ' .. curr_role.name)
+        -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
+        for _, value in ipairs(roles_cofiguration) do
+            if value.name == curr_role then
+                return table.insert(user_role, value)
+            end
+        end
     end
 
-    for _, curr_allowed_api in pairs(allowed_apis_access) do
-        if route == curr_allowed_api then
+    -- Check api_access in user_role which match route
+    for _, curr_role in pairs(user_role) do
+        kong.log.debug('curr_allowed_api ' .. curr_role.name)
+        -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
+        if curr_role.attributes.api_access ~= route then
             return true
         end
     end
@@ -86,9 +99,56 @@ local function validate_api_access(user_attributes_template, token)
     return nil, "Not permission to call this API" .. route
 end
 
+local function validate_group_access(group_attributes_template, groups_in_token, token)
+    local route = kong.router.get_route().name
+    kong.log.debug('kong route name' .. route)
+    kong.log.debug('kong roles items ' .. groups_in_token)
+    groups_cofiguration, err = get_data(group_attributes_template, token)
+    if err then
+        return nil, err
+    end
+
+    -- Get user groups (detail) from list group
+    local user_group = {}
+    for _, curr_group in pairs(groups_in_token) do
+        kong.log.debug('curr_allowed_api ' .. curr_group.name)
+        -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
+        for _, value in ipairs(groups_cofiguration) do
+            if value.path == curr_group then
+                return table.insert(user_group, value)
+            end
+        end
+    end
+
+    -- Check api_access in user_role which match route
+    for _, curr_group in pairs(user_group) do
+        kong.log.debug('curr_allowed_api ' .. curr_group.name)
+        -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
+        if curr_group.attributes.api_access ~= route then
+            return true
+        end
+    end
+
+    return nil, "Not permission to call this API" .. route
+end
+
+function get_data(attributes_template, token)
+    local data, err = keycloak_keys.get_group_attr(attributes_template, token)
+    if err then
+        return nil, err
+    end
+
+    if data == nil or #data == 0 then
+        return nil, "Permission is not set in user attributes"
+    end
+    return data
+
+end
+
 return {
     validate_client_roles = validate_client_roles,
     validate_realm_roles = validate_realm_roles,
     validate_roles = validate_roles,
-    validate_api_access = validate_api_access
+    validate_role_access = validate_role_access,
+    validate_group_access = validate_group_access
 }

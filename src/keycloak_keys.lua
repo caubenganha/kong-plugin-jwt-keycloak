@@ -67,28 +67,25 @@ local function get_request_token(url, scheme, port, token)
         kong.log.err(err)
         return nil, err
     end
-    local json_data = res_data[1] or {}
-    local response = json_data["attributes"]["api-access"]
     -- print("firstName access: ", tostring(json_data["firstName"]))
     -- print("lastName access: ", tostring(json_data["lastName"]))
     -- print("email access: ", tostring(json_data["email"]))
-    return json.decode(table.concat(response)), nil
+    return json.decode(table.concat(res_data)), nil
 end
 
 local function get_wellknown_endpoint(well_known_template, issuer)
     return string.format(well_known_template, issuer)
 end
 
-local function get_user_attr(user_attributes_template, token)
-    local req = url.parse(user_attributes_template)
-    local res, err = get_request_token(user_attributes_template, req.scheme, req.port, token)
+local function get_role_attr(role_attributes_template, token)
+    local req = url.parse(role_attributes_template)
+    local res, err = get_request_token(role_attributes_template, req.scheme, req.port, token)
     if err then
         kong.log.err('err: ' ..err)
         return nil, err
     end
     local keys = {}
     for i, value in ipairs(res) do
-        kong.log.debug('api-access declares in keycloak: ' .. value)
         keys[i] = value
     end
     return keys, nil
@@ -120,7 +117,7 @@ end
 
 return {
     get_request = get_request,
-    get_user_attr = get_user_attr,
+    get_role_attr = get_role_attr,
     get_issuer_keys = get_issuer_keys,
     get_wellknown_endpoint = get_wellknown_endpoint,
 }
