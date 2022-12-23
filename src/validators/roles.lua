@@ -68,7 +68,7 @@ end
 local function validate_role_access(role_attributes_template, roles_in_token, token)
     local route = kong.router.get_route().name
     kong.log.debug('kong route name' .. route)
-    kong.log.debug('kong roles items ' .. roles_in_token)
+    -- kong.log.debug('kong roles items ' .. roles_in_token)
 
     roles_cofiguration, err = get_data(role_attributes_template, token)
     if err then
@@ -102,7 +102,7 @@ end
 local function validate_group_access(group_attributes_template, groups_in_token, token)
     local route = kong.router.get_route().name
     kong.log.debug('kong route name' .. route)
-    kong.log.debug('kong roles items ' .. groups_in_token)
+    -- kong.log.debug('kong roles items ' .. groups_in_token)
     groups_cofiguration, err = get_data(group_attributes_template, token)
     if err then
         return nil, err
