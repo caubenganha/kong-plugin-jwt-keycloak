@@ -78,7 +78,7 @@ local function validate_role_access(role_attributes_template, roles_in_token, to
     -- Get user role (detail) from list role
     local user_role = {}
     kong.log.debug(roles_in_token)
-    for _, curr_role in pairs(roles_in_token) do
+    for i, curr_role in pairs(roles_in_token) do
         kong.log.debug('curr_allowed_api ' .. curr_role.name)
         -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
         for _, value in ipairs(roles_cofiguration) do
@@ -111,7 +111,7 @@ local function validate_group_access(group_attributes_template, groups_in_token,
 
     -- Get user groups (detail) from list group
     local user_group = {}
-    for _, curr_group in pairs(groups_in_token) do
+    for i, curr_group in pairs(groups_in_token) do
         kong.log.debug('curr_allowed_api ' .. curr_group.name)
         -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
         for _, value in ipairs(groups_cofiguration) do
