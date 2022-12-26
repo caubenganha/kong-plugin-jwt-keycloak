@@ -67,69 +67,69 @@ end
 
 local function validate_role_access(role_attributes_template, roles_in_token, token)
     local route = kong.router.get_route().name
-    kong.log.debug('kong route name' .. route)
-    -- kong.log.debug('kong roles items ' .. roles_in_token)
+    kong.log.debug('validate_role_access route name' .. route)
 
-    roles_cofiguration, err = get_data(role_attributes_template, token)
+    local roles_cofiguration, err = get_data(role_attributes_template, token)
     if err then
         return nil, err
     end
 
     -- Get user role (detail) from list role
-    local user_role = {}
-    kong.log.debug(roles_in_token)
+    local keycloak_roles = {}
+    kong.log.debug('get  user_role')
     for _, curr_claim_role in pairs(roles_in_token) do
-        kong.log.debug('curr_allowed_api ' .. curr_claim_role)
         -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
         for _, value in pairs(roles_cofiguration) do
             if value.name == curr_claim_role then
-                return table.insert(user_role, value)
+                table.insert(keycloak_roles, value)
             end
         end
     end
 
     -- Check api_access in user_role which match route
-    for _, curr_role in pairs(user_role) do
-        kong.log.debug('curr_allowed_api ' .. curr_role.name)
-        -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
-        if curr_role.attributes.api_access ~= route then
-            return true
+
+    kong.log.debug('Match roles ')
+    for _, api_access in pairs(keycloak_roles) do
+        for _, api in pairs(api_access.attributes.api_access) do
+            if api == route then
+                return true
+            end
         end
     end
-
+    kong.log.warn('validate_role_access Not permission to call this API')
     return nil, "Not permission to call this API" .. route
 end
 
 local function validate_group_access(group_attributes_template, groups_in_token, token)
     local route = kong.router.get_route().name
-    kong.log.debug('kong route name' .. route)
-    -- kong.log.debug('kong roles items ' .. groups_in_token)
-    groups_cofiguration, err = get_data(group_attributes_template, token)
+    kong.log.debug('validate_group_access route name' .. route)
+    local groups_cofiguration, err = get_data(group_attributes_template, token)
     if err then
         return nil, err
     end
 
     -- Get user groups (detail) from list group
     local user_group = {}
-    for _, curr_claim_role in pairs(groups_in_token) do
-        kong.log.debug('curr_allowed_api ' .. curr_claim_role)
+    kong.log.debug('get groups_cofiguration ')
+    for _, group in pairs(groups_in_token) do
         -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
         for _, value in ipairs(groups_cofiguration) do
-            if value.path == curr_claim_role then
-                return table.insert(user_group, value)
+            if value.path == group then
+                table.insert(user_group, value)
             end
         end
     end
 
     -- Check api_access in user_role which match route
-    for _, curr_group in pairs(user_group) do
-        kong.log.debug('curr_allowed_api ' .. curr_group.name)
-        -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
-        if curr_group.attributes.api_access ~= route then
-            return true
+    kong.log.debug('match groups_cofiguration ')
+    for _, api_access in pairs(user_group) do
+        for _, api in pairs(api_access.attributes.api_access) do
+            if api == route then
+                return true
+            end
         end
     end
-
+    kong.log.warn('validate_role_access Not permission to call this API')
     return nil, "Not permission to call this API" .. route
 end
 
