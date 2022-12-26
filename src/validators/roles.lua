@@ -90,15 +90,21 @@ local function validate_role_access(role_attributes_template, token_claims, toke
     end
 
     -- Check api_access in user_role which match route
+    if keycloak_roles == nil or #keycloak_roles == 0 then
+        return nil, "Roles if not configed in keycloak " .. route
+    end
 
     kong.log.debug('Match roles ')
     for _, api_access in pairs(keycloak_roles) do
-        for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
-            kong.log.debug('validate_role_access API: '..api)
-            if api == route then
-                return true
+        if api_access.attributes ~= nil and #api_access.attributes > 0 then
+            for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
+                kong.log.debug('validate_role_access API: '..api)
+                if api == route then
+                    return true
+                end
             end
         end
+
     end
     kong.log.warn('validate_role_access Not permission to call this API')
     return nil, "Not permission to call this API: " .. route
@@ -126,13 +132,19 @@ local function validate_group_access(group_attributes_template, token_claims, to
         end
     end
 
+    if user_group == nil or #user_group == 0 then
+        return nil, "Groups if not configed in keycloak " .. route
+    end
+
     -- Check api_access in user_role which match route
     kong.log.debug('match groups_cofiguration ')
     for _, api_access in pairs(user_group) do
-        for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
-            kong.log.debug('validate_group_access API: '..api)
-            if api == route then
-                return true
+        if api_access.attributes ~= nil and #api_access.attributes > 0 then
+            for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
+                kong.log.debug('validate_group_access API: '..api)
+                if api == route then
+                    return true
+                end
             end
         end
     end
