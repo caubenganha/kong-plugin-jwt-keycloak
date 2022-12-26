@@ -321,10 +321,10 @@ local function do_authentication(conf)
     -- Verify api access
     kong.log.debug("Verify api access")
     if ok then
-        ok, err = validate_role_access(conf.role_attributes_template, jwt.claims.realm_access.roles, token)
+        ok, err = validate_role_access(conf.role_attributes_template, jwt.claims, token)
         if err then
             kong.log.warn("validate_role_access"..err)
-            ok, err = validate_group_access(conf.group_attributes_template, jwt.claims.group_api_access, token)
+            ok, err = validate_group_access(conf.group_attributes_template, jwt.claims, token)
             if err then
                 kong.log.warn("validate_group_access"..err)
                 return false, { status = 403, message = err }
