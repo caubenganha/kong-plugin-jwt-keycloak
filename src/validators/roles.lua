@@ -71,11 +71,6 @@ local function validate_role_access(role_attributes_template, token_claims, toke
     local route = kong.router.get_route().name
     kong.log.debug('validate_role_access route name' .. route)
 
-    if token_claims.realm_access == nil then
-        kong.log.warn('Role is not assigned to the user in access token')
-        return nil, "Role is not assigned to the user in access token "
-    end
-
     local roles_cofiguration, err = get_data(role_attributes_template, token)
     if err then
         return nil, err
@@ -112,11 +107,6 @@ end
 local function validate_group_access(group_attributes_template, token_claims, token)
     local route = kong.router.get_route().name
     kong.log.debug('validate_group_access route name' .. route)
-
-    if token_claims.group_api_access == nil then
-        kong.log.warn('Role is not assigned to the user in access token')
-        return nil, "Role is not assigned to the user in access token"
-    end
 
     local groups_cofiguration, err = get_data(group_attributes_template, token)
     if err then
