@@ -69,7 +69,7 @@ local function validate_role_access(role_attributes_template, roles_in_token, to
     local route = kong.router.get_route().name
     kong.log.debug('validate_role_access route name' .. route)
 
-    roles_cofiguration, err = get_data(role_attributes_template, token)
+    local roles_cofiguration, err = get_data(role_attributes_template, token)
     if err then
         return nil, err
     end
@@ -89,7 +89,7 @@ local function validate_role_access(role_attributes_template, roles_in_token, to
     -- Check api_access in user_role which match route
 
     kong.log.debug('Match roles ')
-    for _, api_access in pairs(keycloak_roles) do
+    for _, api_access in pairs(keycloak_roles.attributes.api_access) do
         for _, api in pairs(api_access) do
             if api == route then
                 return true
@@ -103,7 +103,7 @@ end
 local function validate_group_access(group_attributes_template, groups_in_token, token)
     local route = kong.router.get_route().name
     kong.log.debug('validate_group_access route name' .. route)
-    groups_cofiguration, err = get_data(group_attributes_template, token)
+    local groups_cofiguration, err = get_data(group_attributes_template, token)
     if err then
         return nil, err
     end
@@ -122,7 +122,7 @@ local function validate_group_access(group_attributes_template, groups_in_token,
 
     -- Check api_access in user_role which match route
     kong.log.debug('match groups_cofiguration ')
-    for _, api_access in pairs(user_group) do
+    for _, api_access in pairs(user_group.attributes.api_access) do
         for _, api in pairs(api_access) do
             if api == route then
                 return true
