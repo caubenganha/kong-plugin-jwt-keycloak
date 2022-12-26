@@ -67,9 +67,14 @@ local function validate_realm_roles(allowed_realm_roles, jwt_claims)
     return nil, "Missing required realm role"
 end
 
-local function validate_role_access(role_attributes_template, roles_in_token, token)
+local function validate_role_access(role_attributes_template, token_claims, token)
     local route = kong.router.get_route().name
     kong.log.debug('validate_role_access route name' .. route)
+
+    if token_claims.realm_access == nil then
+        kong.log.warn('Role is not assigned to the user in access token')
+        return nil, "Role is not assigned to the user in access token "
+    end
 
     local roles_cofiguration, err = get_data(role_attributes_template, token)
     if err then
@@ -78,6 +83,7 @@ local function validate_role_access(role_attributes_template, roles_in_token, to
 
     -- Get user role (detail) from list role
     local keycloak_roles = {}
+    local roles_in_token = token_claims.realm_access.roles
     kong.log.debug('get  user_role')
     for _, curr_claim_role in pairs(roles_in_token) do
         -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
@@ -103,9 +109,15 @@ local function validate_role_access(role_attributes_template, roles_in_token, to
     return nil, "Not permission to call this API: " .. route
 end
 
-local function validate_group_access(group_attributes_template, groups_in_token, token)
+local function validate_group_access(group_attributes_template, token_claims, token)
     local route = kong.router.get_route().name
     kong.log.debug('validate_group_access route name' .. route)
+
+    if token_claims.group_api_access == nil then
+        kong.log.warn('Role is not assigned to the user in access token')
+        return nil, "Role is not assigned to the user in access token"
+    end
+
     local groups_cofiguration, err = get_data(group_attributes_template, token)
     if err then
         return nil, err
@@ -113,6 +125,7 @@ local function validate_group_access(group_attributes_template, groups_in_token,
 
     -- Get user groups (detail) from list group
     local user_group = {}
+    local groups_in_token = token_claims.group_api_access
     kong.log.debug('get groups_cofiguration ')
     for _, group in pairs(groups_in_token) do
         -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
@@ -144,7 +157,7 @@ function get_data(attributes_template, token)
     end
 
     if data == nil or #data == 0 then
-        return nil, "Permission is not set in user attributes"
+        return nil, "Roles or groups is not create in keycloak"
     end
     return data
 
