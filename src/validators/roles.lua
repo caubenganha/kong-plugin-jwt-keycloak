@@ -83,7 +83,7 @@ local function validate_role_access(role_attributes_template, roles_in_token, to
         -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
         for _, value in pairs(roles_cofiguration) do
             if value.name == curr_claim_role then
-                return table.insert(user_role, value)
+                table.insert(user_role, value)
             end
         end
     end
@@ -116,7 +116,7 @@ local function validate_group_access(group_attributes_template, groups_in_token,
         -- kong.log.debug('curr_allowed_api 1 ' .. curr_role["name"])
         for _, value in ipairs(groups_cofiguration) do
             if value.path == curr_claim_role then
-                return table.insert(user_group, value)
+                table.insert(user_group, value)
             end
         end
     end
