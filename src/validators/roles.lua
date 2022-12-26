@@ -91,13 +91,14 @@ local function validate_role_access(role_attributes_template, roles_in_token, to
     kong.log.debug('Match roles ')
     for _, api_access in pairs(keycloak_roles) do
         for _, api in pairs(api_access.attributes.api_access) do
+            kong.log.debug('validate_role_access API: '..api)
             if api == route then
                 return true
             end
         end
     end
     kong.log.warn('validate_role_access Not permission to call this API')
-    return nil, "Not permission to call this API" .. route
+    return nil, "Not permission to call this API: " .. route
 end
 
 local function validate_group_access(group_attributes_template, groups_in_token, token)
@@ -124,13 +125,14 @@ local function validate_group_access(group_attributes_template, groups_in_token,
     kong.log.debug('match groups_cofiguration ')
     for _, api_access in pairs(user_group) do
         for _, api in pairs(api_access.attributes.api_access) do
+            kong.log.debug('validate_group_access API: '..api)
             if api == route then
                 return true
             end
         end
     end
     kong.log.warn('validate_role_access Not permission to call this API')
-    return nil, "Not permission to call this API" .. route
+    return nil, "Not permission to call this API: " .. route
 end
 
 function get_data(attributes_template, token)
