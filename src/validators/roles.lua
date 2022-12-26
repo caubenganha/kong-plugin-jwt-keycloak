@@ -1,3 +1,5 @@
+local json = require "kong.plugins.jwt-keycloak.json"
+
 local keycloak_keys = require("kong.plugins.jwt-keycloak.keycloak_keys")
 
 local function validate_client_roles(allowed_client_roles, jwt_claims)
@@ -90,7 +92,7 @@ local function validate_role_access(role_attributes_template, roles_in_token, to
 
     kong.log.debug('Match roles ')
     for _, api_access in pairs(keycloak_roles) do
-        for _, api in pairs(api_access.attributes.api_access) do
+        for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
             kong.log.debug('validate_role_access API: '..api)
             if api == route then
                 return true
@@ -124,7 +126,7 @@ local function validate_group_access(group_attributes_template, groups_in_token,
     -- Check api_access in user_role which match route
     kong.log.debug('match groups_cofiguration ')
     for _, api_access in pairs(user_group) do
-        for _, api in pairs(api_access.attributes.api_access) do
+        for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
             kong.log.debug('validate_group_access API: '..api)
             if api == route then
                 return true
