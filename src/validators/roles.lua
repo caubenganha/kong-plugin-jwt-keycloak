@@ -43,7 +43,7 @@ local function validate_roles(allowed_roles, jwt_claims)
     for i, allowed in pairs(allowed_roles) do
         tmp_allowed[i] = jwt_claims.azp .. ":" .. allowed
     end
-    
+
     return validate_client_roles(tmp_allowed, jwt_claims)
 end
 
@@ -94,23 +94,15 @@ local function validate_role_access(role_attributes_template, token_claims, toke
         return nil, "Roles if not configed in keycloak " .. route
     end
 
-    kong.log.debug('Match roles ')
-    for _, api_access in pairs(keycloak_roles) do
-        local check = (api_access.attributes ~= nil)
-        kong.log.debug('validate_group_access null: '.. tostring(check))
-        kong.log.debug('validate_group_access size: '..#api_access.attributes)
-        if api_access.attributes ~= nil and #api_access.attributes > 0 then
-            for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
-                kong.log.debug('validate_role_access API: '..api)
-                if api == route then
-                    return true
-                end
-            end
-        end
-
+    -- Check api_access in user_role which match route
+    kong.log.debug('match roles_cofiguration ')
+    local validate_api_access = match_api_access(keycloak_roles, route)
+    if validate_api_access then
+        return true
+    else
+        kong.log.warn('Validate_role_access Not permission to call this API')
+        return nil, "Not permission to call this API: " .. route
     end
-    kong.log.warn('validate_role_access Not permission to call this API')
-    return nil, "Not permission to call this API: " .. route
 end
 
 local function validate_group_access(group_attributes_template, token_claims, token)
@@ -141,20 +133,32 @@ local function validate_group_access(group_attributes_template, token_claims, to
 
     -- Check api_access in user_role which match route
     kong.log.debug('match groups_cofiguration ')
+    local validate_api_access = match_api_access(user_group, route)
+    if validate_api_access then
+        return true
+    else
+        kong.log.warn('validate_role_access Not permission to call this API')
+        return nil, "Not permission to call this API: " .. route
+    end
+
+end
+
+function match_api_access(user_group, route)
+    kong.log.debug("Match api_access")
     for _, api_access in pairs(user_group) do
-        kong.log.debug('validate_group_access null: '..api_access.attributes ~= nil)
-        kong.log.debug('validate_group_access size: '..#api_access.attributes)
-        if api_access.attributes ~= nil and #api_access.attributes > 0 then
+        local check = (api_access.attributes ~= nil)
+        kong.log.debug('validate_group_access null: ' .. tostring(check))
+        kong.log.debug('validate_group_access size: ' .. #api_access.attributes.api_access)
+        if api_access.attributes ~= nil and #api_access.attributes.api_access > 0 then
             for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
-                kong.log.debug('validate_group_access API: '..api)
+                kong.log.debug('validate_group_access API: ' .. api)
                 if api == route then
                     return true
                 end
             end
         end
     end
-    kong.log.warn('validate_role_access Not permission to call this API')
-    return nil, "Not permission to call this API: " .. route
+    return false
 end
 
 function get_data(attributes_template, token)
