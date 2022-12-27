@@ -96,6 +96,8 @@ local function validate_role_access(role_attributes_template, token_claims, toke
 
     kong.log.debug('Match roles ')
     for _, api_access in pairs(keycloak_roles) do
+        kong.log.debug('validate_group_access null: '..api_access.attributes ~= nil)
+        kong.log.debug('validate_group_access size: '..#api_access.attributes)
         if api_access.attributes ~= nil and #api_access.attributes > 0 then
             for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
                 kong.log.debug('validate_role_access API: '..api)
@@ -139,6 +141,8 @@ local function validate_group_access(group_attributes_template, token_claims, to
     -- Check api_access in user_role which match route
     kong.log.debug('match groups_cofiguration ')
     for _, api_access in pairs(user_group) do
+        kong.log.debug('validate_group_access null: '..api_access.attributes ~= nil)
+        kong.log.debug('validate_group_access size: '..#api_access.attributes)
         if api_access.attributes ~= nil and #api_access.attributes > 0 then
             for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
                 kong.log.debug('validate_group_access API: '..api)
