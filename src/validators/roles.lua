@@ -144,7 +144,7 @@ function match_api_access(user_group, route)
     for _, api_access in pairs(user_group) do
         local check = (api_access.attributes ~= nil)
         kong.log.debug('api_access.attributes != null: ' .. tostring(check))
-        kong.log.debug('api_access.attributes.api_access size: ' .. #api_access.attributes.api_access)
+        kong.log.debug('api_access.attributes.api_access size: ' .. #api_access.attributes)
         if api_access.attributes ~= nil and #api_access.attributes and #api_access.attributes.api_access > 0 then
             for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
                 kong.log.debug('validate_group_access API: ' .. api)
