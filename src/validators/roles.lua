@@ -96,7 +96,8 @@ local function validate_role_access(role_attributes_template, token_claims, toke
 
     kong.log.debug('Match roles ')
     for _, api_access in pairs(keycloak_roles) do
-        kong.log.debug('validate_group_access null: '..api_access.attributes ~= nil)
+        local check = (api_access.attributes ~= nil)
+        kong.log.debug('validate_group_access null: '.. check)
         kong.log.debug('validate_group_access size: '..#api_access.attributes)
         if api_access.attributes ~= nil and #api_access.attributes > 0 then
             for _, api in pairs(json.decode(table.concat(api_access.attributes.api_access))) do
