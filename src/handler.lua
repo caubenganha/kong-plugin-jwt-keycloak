@@ -319,28 +319,25 @@ local function do_authentication(conf)
     end
 
     -- Verify api access
+    kong.log.warn("test vietpcccccccccccccccccc warn log")
     kong.log.debug("Verify api access")
     if ok then
-        -- Check roles and groups in token
-        if jwt.claims.realm_access == nil then
-            kong.log.debug('Roles is not assigned to the user in access token')
-            return false, { status = 403, message = "Roles is not assigned to the user in access token"}
+        if jwt.claims.group_access == nil or #jwt.claims.group_access == 0 then
+            kong.log.debug('Groups is not assigned to the user in access token')
+            return false, { status = 403, message = "Groups is not assigned to the user in access token"}
         end
 
-        ok, err = validate_role_access(conf.role_attributes_template, jwt.claims, token)
+        ok, err = validate_group_access(conf.group_attributes_template, conf.role_attributes_template, jwt.claims, token)
         if err then
-
-            kong.log.debug("validate_role_access"..err)
-            kong.log.debug("jwt.claims.group_api_access: "..tostring(jwt.claims.group_api_access == nil))
-            kong.log.debug("Size of group_api_access in token: "..#jwt.claims.group_api_access)
-            if jwt.claims.group_api_access == nil or #jwt.claims.group_api_access == 0 then
-                kong.log.debug('Groups is not assigned to the user in access token')
-                return false, { status = 403, message = "Groups is not assigned to the user in access token"}
+            -- Check roles and groups in token
+            if jwt.claims.realm_access == nil then
+                kong.log.debug('Roles is not assigned to the user in access token')
+                return false, { status = 403, message = "Roles is not assigned to the user in access token"}
             end
 
-            ok, err = validate_group_access(conf.group_attributes_template, jwt.claims, token)
+            ok, err = validate_role_access(conf.role_attributes_template, jwt.claims, token)
             if err then
-                kong.log.debug("validate_group_access"..err)
+                kong.log.warn("validate_role_access"..err)
                 return false, { status = 403, message = err }
             end
         end
