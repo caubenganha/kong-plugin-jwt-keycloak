@@ -34,9 +34,9 @@ local function get_request(url, scheme, port)
     return res, nil
 end
 
-local function get_request_token(url, scheme, port, token)
+local function get_request_token(url, req, token)
     local req
-    if scheme == "https" then
+    if req.scheme == "https" then
         req = https.request
     else
         req = http.request
@@ -45,7 +45,7 @@ local function get_request_token(url, scheme, port, token)
     local res
     local status
     local err
-
+    kong.log.debug("host keycloak:"..req.host..":"..req.port)
     local chunks = {}
     if token then
         res, status = req({
@@ -53,7 +53,7 @@ local function get_request_token(url, scheme, port, token)
             sink = ltn12.sink.table(chunks),
             headers = { 
                 authorization = "Bearer " .. token,
-                host = "10.90.10.206:8080"
+                host = req.host..":"..req.port
             }
         })
     end
@@ -79,7 +79,7 @@ end
 
 local function get_role_attr(role_attributes_template, token)
     local req = url.parse(role_attributes_template)
-    local res, err = get_request_token(role_attributes_template, req.scheme, req.port, token)
+    local res, err = get_request_token(role_attributes_template, req, token)
     if err then
         kong.log.err('err: ' ..err)
         return nil, err
