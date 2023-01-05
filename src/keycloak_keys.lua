@@ -35,7 +35,6 @@ local function get_request(url, scheme, port)
 end
 
 local function get_request_token(url, req, token)
-    local req
     if req.scheme == "https" then
         req = https.request
     else
