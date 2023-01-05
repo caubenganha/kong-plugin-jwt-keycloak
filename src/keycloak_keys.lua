@@ -45,7 +45,7 @@ local function get_request_token(url, schema_request, token)
     local res
     local status
     local err
-    kong.log.debug("host keycloak:"..req.host..":"..req.port)
+    kong.log.debug("host keycloak:"..schema_request.host..":"..schema_request.port)
     local chunks = {}
     if token then
         res, status = req({
@@ -53,7 +53,7 @@ local function get_request_token(url, schema_request, token)
             sink = ltn12.sink.table(chunks),
             headers = { 
                 authorization = "Bearer " .. token,
-                host = req.host..":"..req.port
+                host = schema_request.host..":"..schema_request.port
             }
         })
     end
