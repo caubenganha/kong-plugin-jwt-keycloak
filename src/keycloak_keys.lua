@@ -34,8 +34,9 @@ local function get_request(url, scheme, port)
     return res, nil
 end
 
-local function get_request_token(url, req, token)
-    if req.scheme == "https" then
+local function get_request_token(url, schema_request, token)
+    local req
+    if schema_request.scheme == "https" then
         req = https.request
     else
         req = http.request
