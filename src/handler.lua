@@ -91,7 +91,6 @@ local function retrieve_token(conf)
             return nil, err
         end
         kong.log.debug("Access token "..m[1])
-        kong.log.debug("Refresh token "..m[2])
         if m and #m > 0 then
             return m[1]
         end
@@ -206,6 +205,7 @@ local function validate_signature(conf, jwt, second_call)
 
     -- We could not validate signature, try to get a new keyset?
     since_last_update = socket.gettime() - public_keys.updated_at
+    kong.log.debug("since_last_update"..tostring(since_last_update))
     if not second_call and since_last_update > conf.iss_key_grace_period then
         kong.log.debug('Could not validate signature. Keys updated last ' .. since_last_update .. ' seconds ago')
         kong.cache:invalidate_local(issuer_cache_key)
@@ -269,7 +269,7 @@ local function do_authentication(conf)
     end
 
     -- Verify algorithim
-    if jwt.header.alg ~= (conf.algorithm or "HS256") then
+    if jwt.header.alg ~= (conf.algorithm or "RS256") then
         return false, { status = 403, message = "Invalid algorithm" }
     end
 
