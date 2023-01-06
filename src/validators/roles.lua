@@ -159,7 +159,6 @@ function match_groups_access(user_groups, keycloak_roles_configuration, route)
     local role_details = {}
     for _, role in pairs(roles_name) do
         for _, role_config in pairs(keycloak_roles_configuration) do
-            kong.log.debug()
             if role_config.name == role then
                 table.insert(role_details, role_config)
             end

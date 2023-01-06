@@ -90,7 +90,8 @@ local function retrieve_token(conf)
         if err then
             return nil, err
         end
-
+        kong.log.debug("Access token "..m[1])
+        kong.log.debug("Refresh token "..m[2])
         if m and #m > 0 then
             return m[1]
         end
@@ -320,7 +321,6 @@ local function do_authentication(conf)
     end
 
     -- Verify api access
-    kong.log.warn("test vietpcccccccccccccccccc warn log")
     kong.log.debug("Verify api access")
     if ok then
         if jwt.claims.group_access == nil or #jwt.claims.group_access == 0 then
